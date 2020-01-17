@@ -8,8 +8,9 @@ import urllib
 from os import path
 from pylons import config
 from routes.mapper import SubMapper
+import ckan.plugins.toolkit as toolkit
 
-log = logging.getLogger('ckanext.googleanalytics')
+log = logging.getLogger('ckanext.ga_api_actions')
 
 
 class AnalyticsPostThread(threading.Thread):
@@ -49,6 +50,7 @@ class GoogleAnalyticsPlugin(p.SingletonPlugin):
     analytics_queue = Queue.Queue()
     capture_api_actions = {}
     google_analytics_id = None
+    catch_all_api_actions = False
 
     def configure(self, config):
         '''Load config settings for this extension from config file.
@@ -62,7 +64,10 @@ class GoogleAnalyticsPlugin(p.SingletonPlugin):
             GoogleAnalyticsPlugin.capture_api_actions = json.load(json_file)
 
         # Get google_analytics_id from config file
-        GoogleAnalyticsPlugin.google_analytics_id = config.get('ckan.ga_api_actions_googleanalytics.id')
+        GoogleAnalyticsPlugin.google_analytics_id = config.get('ckan.ga_api_actions.id')
+
+        # Get catch_all_api_actions from config file
+        GoogleAnalyticsPlugin.catch_all_api_actions = toolkit.asbool(config.get('ckan.ga_api_actions.catch_all_api_actions', False))
 
         # spawn a pool of 5 threads, and pass them queue instance
         for i in range(5):

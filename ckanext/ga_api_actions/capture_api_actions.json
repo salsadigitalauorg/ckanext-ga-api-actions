@@ -1,12 +1,38 @@
 {
-  "datastore_search_sql": "datastore_search_sql | Query: {0}",
-  "datastore_search": "datastore_search | Query: {0}",
-  "package_show": "package_show | Package ID: {0}",
-  "package_search": "package_search | Package ID : {0}",
-  "resource_show": "resource_show | Resource ID : {0}",
-  "resource_search": "resource_search | Query: {0}",
-  "organization_show": "organization_show | Organisation ID: {0}",
-  "follow_dataset": "follow_dataset | Package ID: {0}",
-  "package_activity_list": "package_activity_list | Package ID: {0}",
-  "revision_show": "revision_show | Revision ID: {0}"
+  "datastore_search_sql": {
+    "action": "{0}",
+    "label": "datastore_search_sql | Query: {0}"
+  },
+  "datastore_search": {
+    "action": "{0}",
+    "label": "datastore_search | Query: {0}"
+  },
+  "package_show": {
+    "action": "{0}",
+    "label": "package_show | Package ID: {0}"
+  },
+  "package_search": {
+    "action": "{0}",
+    "label": "package_search | Package ID : {0}"
+  },
+  "resource_show": {
+    "action": "{0}",
+    "label": "resource_show | Resource ID : {0}"
+  },
+  "resource_search": {
+    "action": "{0}",
+    "label": "resource_search | Query: {0}"
+  },
+  "organization_show": {
+    "action": "{0}",
+    "label": "organization_show | Organisation ID: {0}"
+  },
+  "follow_dataset": {
+    "action": "{0}",
+    "label": "follow_dataset | Package ID: {0}"
+  },
+  "package_activity_list": {
+    "action": "{0}",
+    "label": "revision_show | Revision ID: {0}"
+  }
 }

@@ -32,6 +32,10 @@ Add your google analytics tracking ID
 Add google analytics URL to send the data
 
         ckan.ga_api_actions_googleanalytics.collection_url = http://www.google-analytics.com/collect
+        
+To catch all api actions that are not in the capture_api_actions.json file
+
+    ckan.ga_api_actions.catch_all_api_actions = False
 
 ## API Action Configuration File
 

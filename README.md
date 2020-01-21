@@ -1,43 +1,45 @@
-=============
-ckanext-ga-api-actions
-=============
+# ckanext-ga-api-actions
 
-CKAN extension which sends back end API events to google analytics's.
-The extension is based on the event tracking from the CKAN Google Analytics's Extension (https://github.com/ckan/ckanext-googleanalytics).
-This extension has a configurable list of APIs events and labels that can be sent to google analytics's.
+CKAN extension which sends back end API events to google analytics.
 
+This extension is based on the event tracking from the CKAN Google Analytics Extension (https://github.com/ckan/ckanext-googleanalytics).
 
-------------
-Installation
-------------
+That extension only tracked a limited amount of API events where this extension has a configurable list of APIs events and labels that can be sent to google analytics.
 
-Clone repo into the /usr/lib/ckan/default/src directory, then:
+## Installation
 
-    cd ckanext-ga-api-actions
-    python setup.py develop
+Clone repo into your CKAN extension directory, e.g. `/usr/lib/ckan/default/src`, then:
 
+Activate the Python virtual environment, e.g.
 
----------------
-Config Settings
----------------
+        . /usr/lib/ckan/default/bin/activate
 
-Your google analytics tracking ID
+        cd ckanext-ga-api-actions
+        python setup.py develop
 
-    ckan.ga_api_actions.id = UA-XXXXXXXXX-X
+## CKAN Configuration Settings
 
+Make the following changes within your CKAN `.ini` file, e.g. `production.ini`
 
-The google analytics URL to send the data
+Enable the `ga_api_actions` extension:
 
-    ckan.ga_api_actions.collection_url = https://www.google-analytics.com/collect
+        ckan.plugins = ... ga_api_actions
 
+Add your google analytics tracking ID
 
-List of API event actions and labels that can be configured in the file
+        ckan.ga_api_actions_googleanalytics.id = UA-XXXXXXXXX-X
 
-    ckanext-ga-api-actions/ckanext/ga_api_actions/capture_api_actions.json
+Add google analytics URL to send the data
 
-
+        ckan.ga_api_actions_googleanalytics.collection_url = http://www.google-analytics.com/collect
+        
 To catch all api actions that are not in the capture_api_actions.json file
 
     ckan.ga_api_actions.catch_all_api_actions = False
 
+## API Action Configuration File
+
+List of API event actions and labels that can be configured in the file
+
+        ckanext-ga-api-actions/ckanext/ga_api_actions/capture_api_actions.json
 

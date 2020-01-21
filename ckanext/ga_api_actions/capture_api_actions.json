@@ -33,6 +33,6 @@
   },
   "package_activity_list": {
     "action": "{0}",
-    "label": "revision_show | Revision ID: {0}"
+    "label": "package_activity_list | Revision ID: {0}"
   }
 }

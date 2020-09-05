@@ -71,7 +71,6 @@ def _get_parameter_value(request_data):
 
 def action(api_action, ver=api.API_MAX_VERSION):
     try:
-        log.debug('action: {}'.format(api_action))
         request_data = _get_action_request_data(api_action)
         parameter_value = _get_parameter_value(request_data)
         capture_api_actions = ga_api_actions_plugin.GoogleAnalyticsPlugin.capture_api_actions

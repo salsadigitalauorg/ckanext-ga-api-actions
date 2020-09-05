@@ -1,14 +1,14 @@
-import Queue
-import ckan.plugins as p
+import queue
 import json
 import logging
 import requests
 import threading
-import urllib
-from os import path
-from pylons import config
-from routes.mapper import SubMapper
+import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
+import ckanext.ga_api_actions.blueprint as blueprint
+
+from six.moves.urllib.parse import urlencode
+from os import path
 
 log = logging.getLogger('ckanext.ga_api_actions')
 
@@ -19,7 +19,7 @@ class AnalyticsPostThread(threading.Thread):
     def __init__(self, queue):
         threading.Thread.__init__(self)
         self.queue = queue
-        self.ga_collection_url = config.get('ckan.ga_api_actions_googleanalytics.collection_url',
+        self.ga_collection_url = toolkit.config.get('ckan.ga_api_actions_googleanalytics.collection_url',
                                             'https://www.google-analytics.com/collect')
 
     def run(self):
@@ -35,7 +35,7 @@ class AnalyticsPostThread(threading.Thread):
 
             # Send analytics data.
             try:
-                data = urllib.urlencode(data_dict)
+                data = urlencode(data_dict)
                 requests.post(self.ga_collection_url, data=data, headers=headers, timeout=5)
                 self.queue.task_done()
             except requests.exceptions.RequestException:
@@ -45,9 +45,9 @@ class AnalyticsPostThread(threading.Thread):
 
 class GoogleAnalyticsPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable, inherit=True)
-    p.implements(p.IRoutes, inherit=True)
+    p.implements(p.IBlueprint)
 
-    analytics_queue = Queue.Queue()
+    analytics_queue = queue.Queue()
     capture_api_actions = {}
     google_analytics_id = None
     catch_all_api_actions = False
@@ -64,10 +64,10 @@ class GoogleAnalyticsPlugin(p.SingletonPlugin):
             GoogleAnalyticsPlugin.capture_api_actions = json.load(json_file)
 
         # Get google_analytics_id from config file
-        GoogleAnalyticsPlugin.google_analytics_id = config.get('ckan.ga_api_actions.id')
+        GoogleAnalyticsPlugin.google_analytics_id = toolkit.config.get('ckan.ga_api_actions.id')
 
         # Get catch_all_api_actions from config file
-        GoogleAnalyticsPlugin.catch_all_api_actions = toolkit.asbool(config.get('ckan.ga_api_actions.catch_all_api_actions', False))
+        GoogleAnalyticsPlugin.catch_all_api_actions = toolkit.asbool(toolkit.config.get('ckan.ga_api_actions.catch_all_api_actions', False))
 
         # spawn a pool of 5 threads, and pass them queue instance
         for i in range(5):
@@ -75,17 +75,5 @@ class GoogleAnalyticsPlugin(p.SingletonPlugin):
             t.setDaemon(True)
             t.start()
 
-    def before_map(self, map):
-        '''Add new routes that this extension's controllers handle.
-
-        See IRoutes.
-
-        '''
-        # Helpers to reduce code clutter
-        GET_POST = dict(method=['GET', 'POST'])
-        # /api ver 3 or none
-        with SubMapper(map, controller='ckanext.ga_api_actions.controller:GoogleAnalyticsApiController',
-                       path_prefix='/api{ver:/3|}', ver='/3') as m:
-            m.connect('/action/{api_action}', action='action', conditions=GET_POST)
-
-        return map
+    def get_blueprint(self):
+        return blueprint.ga_api_actions

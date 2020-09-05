@@ -99,7 +99,7 @@ def action(api_action, ver=api.API_MAX_VERSION):
 
 
 ga_api_actions.add_url_rule(u'/action/<api_action>',
-    methods=[u'GET', u'POST'], view_func=action)
+                            methods=[u'GET', u'POST'], view_func=action)
 
 ga_api_actions.add_url_rule(
     u"/<int(min=3, max={0}):ver>/action/<api_action>".format(

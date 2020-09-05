@@ -20,7 +20,7 @@ class AnalyticsPostThread(threading.Thread):
         threading.Thread.__init__(self)
         self.queue = queue
         self.ga_collection_url = toolkit.config.get('ckan.ga_api_actions_googleanalytics.collection_url',
-                                            'https://www.google-analytics.com/collect')
+                                                    'https://www.google-analytics.com/collect')
 
     def run(self):
         # User-Agent must be present, GA might ignore a custom UA.

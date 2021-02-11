@@ -1,16 +1,16 @@
-import queue
 import json
 import logging
+import queue
 import requests
 import threading
 import ckan.plugins as p
 import ckan.plugins.toolkit as toolkit
-import ckanext.ga_api_actions.blueprint as blueprint
-
-from six.moves.urllib.parse import urlencode
+import ckanext.ga_api_actions.helpers as helpers
 from os import path
+from six.moves.urllib.parse import urlencode
 
-log = logging.getLogger('ckanext.ga_api_actions')
+log = logging.getLogger(__name__)
+config = toolkit.config
 
 
 class AnalyticsPostThread(threading.Thread):
@@ -38,7 +38,9 @@ class AnalyticsPostThread(threading.Thread):
                 data = urlencode(data_dict)
                 requests.post(self.ga_collection_url, data=data, headers=headers, timeout=5)
                 self.queue.task_done()
-            except requests.exceptions.RequestException:
+                log.debug("Google Analytics API event was sent successfully")
+            except requests.exceptions.RequestException as e:
+                log.error(f"Sending API event to Google Analytics failed: {e}")
                 # If error occurred while posting - dont try again or attempt to fix  - just discard from the queue.
                 self.queue.task_done()
 
@@ -75,5 +77,6 @@ class GoogleAnalyticsPlugin(p.SingletonPlugin):
             t.setDaemon(True)
             t.start()
 
+    # IBlueprint
     def get_blueprint(self):
-        return blueprint.ga_api_actions
+        return helpers._register_blueprints()

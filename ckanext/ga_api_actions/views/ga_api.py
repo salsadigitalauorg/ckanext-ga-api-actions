@@ -1,15 +1,14 @@
-import ckan.plugins.toolkit as toolkit
 import hashlib
-import logging
 import json
-import ckan.views.api as api
-import ckanext.ga_api_actions.plugin as ga_api_actions_plugin
+import logging
 
+import ckan.plugins.toolkit as toolkit
+import ckan.views.api as ckan_api
+from ckanext.ga_api_actions.plugin import GoogleAnalyticsPlugin
 from flask import Blueprint
 
-ga_api_actions = Blueprint(u'ga_api_actions', __name__, url_prefix=u'/api')
-
 log = logging.getLogger(__name__)
+ga_api = Blueprint(u'ga_api', __name__, url_prefix=u'/api')
 
 
 def _alter_sql(sql_query):
@@ -26,10 +25,10 @@ def _alter_sql(sql_query):
 
 def _post_analytics(user, request_event_action, request_event_label):
     '''intercept API calls to record via google analytics's'''
-    if ga_api_actions_plugin.GoogleAnalyticsPlugin.google_analytics_id:
+    if GoogleAnalyticsPlugin.google_analytics_id:
         data_dict = {
             "v": 1,
-            "tid": ga_api_actions_plugin.GoogleAnalyticsPlugin.google_analytics_id,
+            "tid": GoogleAnalyticsPlugin.google_analytics_id,
             "cid": hashlib.md5(user.encode()).hexdigest(),
             # customer id should be obfuscated
             "t": "event",
@@ -40,13 +39,13 @@ def _post_analytics(user, request_event_action, request_event_label):
             "ea": request_event_action,
             "el": request_event_label
         }
-        ga_api_actions_plugin.GoogleAnalyticsPlugin.analytics_queue.put(data_dict)
+        GoogleAnalyticsPlugin.analytics_queue.put(data_dict)
 
 
 def _get_action_request_data(api_action):
     function = toolkit.get_action(api_action)
     side_effect_free = getattr(function, 'side_effect_free', False)
-    request_data = api._get_request_data(try_url_params=side_effect_free)
+    request_data = ckan_api._get_request_data(try_url_params=side_effect_free)
     return request_data
 
 
@@ -69,11 +68,11 @@ def _get_parameter_value(request_data):
     return parameter_value
 
 
-def action(api_action, ver=api.API_MAX_VERSION):
+def action(api_action, ver=ckan_api.API_DEFAULT_VERSION):
     try:
         request_data = _get_action_request_data(api_action)
         parameter_value = _get_parameter_value(request_data)
-        capture_api_actions = ga_api_actions_plugin.GoogleAnalyticsPlugin.capture_api_actions
+        capture_api_actions = GoogleAnalyticsPlugin.capture_api_actions
         event_action = ''
         event_label = ''
 
@@ -83,7 +82,7 @@ def action(api_action, ver=api.API_MAX_VERSION):
             event_action = capture_api_action['action'].format(api_action)
             event_label = capture_api_action['label'].format(parameter_value)
             # If catch_all_api_actions is True send api action
-        elif ga_api_actions_plugin.GoogleAnalyticsPlugin.catch_all_api_actions:
+        elif GoogleAnalyticsPlugin.catch_all_api_actions:
             event_action = api_action
             event_label = parameter_value
 
@@ -92,19 +91,15 @@ def action(api_action, ver=api.API_MAX_VERSION):
             _post_analytics(toolkit.g.user, event_action, event_label)
 
     except Exception as e:
-        log.debug(e)
+        log.error(e)
         pass
 
-    return api.action(api_action, ver)
+    return ckan_api.action(api_action, ver)
 
 
-ga_api_actions.add_url_rule(u'/action/<api_action>',
-                            methods=[u'GET', u'POST'], view_func=action)
-
-ga_api_actions.add_url_rule(
-    u"/<int(min=3, max={0}):ver>/action/<api_action>".format(
-        api.API_MAX_VERSION
-    ),
-    methods=["GET", "POST"],
-    view_func=action,
-)
+ga_api.add_url_rule(u'/action/<api_action>',
+                    methods=[u'GET', u'POST'],
+                    view_func=action)
+ga_api.add_url_rule(u'/<int(min=3, max={0}):ver>/action/<api_action>'.format(ckan_api.API_MAX_VERSION),
+                    methods=[u'GET', u'POST'],
+                    view_func=action)

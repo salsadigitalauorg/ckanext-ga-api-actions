@@ -8,11 +8,11 @@ That extension only tracked a limited amount of API events where this extension 
 
 ## Installation
 
-Clone repo into your CKAN extension directory, e.g. `/usr/lib/ckan/default/src`, then:
+Clone repo into your CKAN extension directory, e.g. `ckan/default/src`, then:
 
 Activate the Python virtual environment, e.g.
 
-        . /usr/lib/ckan/default/bin/activate
+        . /app/ckan/default/bin/activate
 
         cd ckanext-ga-api-actions
         python setup.py develop
